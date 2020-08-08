@@ -1,11 +1,14 @@
 package Implementation;
 
 import Control.Constants;
+import Control.GUI_C;
 import Control.Utilities;
 
 import javax.swing.*;
 import javax.swing.plaf.SliderUI;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class MainWindow extends JFrame
 {
@@ -26,6 +29,13 @@ public class MainWindow extends JFrame
     private JLabel labelSpeedFL;
     private JLabel labelSpeedBL;
     private JLabel labelSpeedBR;
+    private JButton sendTcpBtn;
+    private JTextPane tcpTextPane;
+    private JTextPane udpTextPane;
+    private JButton sendUdpBtn;
+    private JTextField tcpSendField;
+    private JTextField udpSendField;
+    private JButton tcpConnectButton;
 
     public MainWindow() {
         add(rootPanel);     //  needed or else nothing will be on screen
@@ -35,12 +45,21 @@ public class MainWindow extends JFrame
         setLocationRelativeTo(null);    //  center on screen
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  //  set what clicking 'X' does
 
-        //  make sliders unselectable
+        //  make stuff unselectable
         sliderFR.setFocusable(false);
         sliderFL.setFocusable(false);
         sliderBL.setFocusable(false);
         sliderBR.setFocusable(false);
+
+        tabs.setFocusable(false);
+        tcpConnectButton.setFocusable(false);
+        sendTcpBtn.setFocusable(false);
+        sendUdpBtn.setFocusable(false);
+        tcpTextPane.setFocusable(false);
+        udpTextPane.setFocusable(false);
+
         setVisible(true);
+        tcpConnectButton.addActionListener(e -> GUI_C.tcpConnect_btnHandler());
     }
 
     public int getMotorSlider(int motor) {
@@ -58,7 +77,6 @@ public class MainWindow extends JFrame
 
     public void setMotorSliderText(int motor, int value) {
         String valueStr = Utilities.padSpaces(value+"", 3, false);
-        System.out.println(valueStr);
 
         if(motor == Constants.MOTOR_FR) {
             labelSpeedFR.setText(valueStr);

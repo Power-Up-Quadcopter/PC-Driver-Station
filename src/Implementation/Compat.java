@@ -27,7 +27,10 @@ public class Compat
             long lastRun = 0;
             while(true) {
                 long sysTime = System.currentTimeMillis();
-                if(sysTime - lastRun >= periodMillis) r.run();
+                if(sysTime - lastRun >= periodMillis) {
+                    lastRun = sysTime;
+                    r.run();
+                }
                 else
                 {
                     try { Thread.sleep(1); } catch (InterruptedException e)

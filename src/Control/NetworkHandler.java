@@ -15,7 +15,7 @@ import java.net.Socket;
 
 public class NetworkHandler {
 
-    static String IP = "192.168.137.1";
+    static String IP = "localhost";
     static int port = 5414;
     // TCP
     static boolean tcpConnectionInProgress;
@@ -105,13 +105,14 @@ public class NetworkHandler {
     static public void tcpNetworkSetup() {
         if(tcpConnectionInProgress || (tcpSocket != null && tcpSocket.isConnected())) return;
 
-        Compat.log("TCPNetworkSetupThread", "tryna do a TCP setup");
+        Compat.log("TCPNetworkSetupThread", "Attempting TCP connection...");
         tcpConnectionInProgress = true;
         new Thread(() -> {
             Compat.prepareLooper();
             try {
                 tcpSocket = new Socket();
-                tcpSocket.connect(new InetSocketAddress(IP, port), 1000);
+                try { tcpSocket.connect(new InetSocketAddress(IP, port), 1000); }
+                catch (Exception e) { Compat.log("TCPNetworkSetupThread", "Timed out"); return; }
                 tcpInput = new BufferedReader(new InputStreamReader(tcpSocket.getInputStream()));
                 tcpOutput = new PrintWriter(tcpSocket.getOutputStream());
 
