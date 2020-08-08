@@ -38,11 +38,12 @@ public class NetworkHandler {
                 tcpOutput.write(buffer);
                 tcpOutput.flush();
                 StringBuilder s = new StringBuilder();
-                for (char c : buffer) s.append(c);
-                Compat.log("TCP", "Sending: \"" + s + "\"");
+                for (char c : buffer) s.append((int)c + " ");
+                Compat.log("TCP", "Sending: " + s.toString().trim());
             }
             catch (Exception e) {
-                e.printStackTrace();
+                tcpSocket = null;
+//                e.printStackTrace();
             }
         }).start();
         return true;
@@ -112,7 +113,11 @@ public class NetworkHandler {
             try {
                 tcpSocket = new Socket();
                 try { tcpSocket.connect(new InetSocketAddress(IP, port), 1000); }
-                catch (Exception e) { Compat.log("TCPNetworkSetupThread", "Timed out"); return; }
+                catch (Exception e) {
+                    Compat.log("TCPNetworkSetupThread", "Timed out");
+                    tcpSocket = null;
+                    tcpConnectionInProgress = false;
+                    return; }
                 tcpInput = new BufferedReader(new InputStreamReader(tcpSocket.getInputStream()));
                 tcpOutput = new PrintWriter(tcpSocket.getOutputStream());
 

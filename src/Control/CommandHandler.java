@@ -5,15 +5,21 @@ import Implementation.Compat;
 public class CommandHandler
 {
 
-    int PING_PERIOD = 50;
+    static int PING_PERIOD = 300;
+    static long lastPingTime = 0;
 
     public static void initialize() {
         Compat.startThread(CommandHandler::loop, 20);   //  50 hz
     }
 
     public static void loop() {
+        long millis = System.currentTimeMillis();
+
         //  Ping
-        
+        if(millis - lastPingTime > PING_PERIOD) {
+            lastPingTime = millis;
+            pingTCP();
+        }
     }
 
     public static void setMotorTest(int motor, int speed) {
@@ -30,7 +36,12 @@ public class CommandHandler
     }
 
     public static void pingTCP() {
+        char[] toSend = {0xF0};
+        NetworkHandler.sendTCP(toSend);
+    }
 
+    public static void pingUDP() {
+        byte[] toSend = {(byte) 0xF2};
     }
 
 }
