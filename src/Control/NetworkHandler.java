@@ -2,26 +2,19 @@ package Control;
 
 import Implementation.Compat;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.ConnectException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Socket;
+import java.io.*;
+import java.net.*;
 
 public class NetworkHandler {
 
+//    static String IP = "192.168.1.1";
     static String IP = "localhost";
     static int port = 5414;
     // TCP
     static boolean tcpConnectionInProgress;
     static Socket tcpSocket;
-    static BufferedReader tcpInput;
-    static PrintWriter tcpOutput;
+    static InputStream tcpInput;
+    static OutputStream tcpOutput;
     // UDP
     static DatagramSocket udpSocket;
     static byte[] buffer = new byte[10000];
@@ -31,14 +24,14 @@ public class NetworkHandler {
     public static final int A3 = 3;
     public static final int A4 = 4;
 
-    static boolean sendTCP(char[] buffer) {
-        if(tcpSocket == null) return false;
+    static boolean sendTCP(byte[] buffer) {
+        if(tcpSocket == null || tcpConnectionInProgress) return false;
         new Thread(() -> {
             try {
                 tcpOutput.write(buffer);
                 tcpOutput.flush();
                 StringBuilder s = new StringBuilder();
-                for (char c : buffer) s.append((int)c + " ");
+                for (byte b : buffer) s.append((int)b + " ");
                 Compat.log("TCP", "Sending: " + s.toString().trim());
             }
             catch (Exception e) {
@@ -66,26 +59,24 @@ public class NetworkHandler {
         return true;
     }
 
-    static String readTCPLine() {
-        if(tcpSocket == null) return null;
+    static char readTCPByte() {
+        if(tcpSocket == null || tcpConnectionInProgress) return 0;
         try {
             if(!tcpSocket.isConnected()) {
-                Compat.log("TCP", "nope");
-                return null;
+                Compat.log("TCP", "not actually connected");
+                return 0;
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
         try {
-            String s = tcpInput.readLine();
-            return s;
+            return (char) tcpInput.read();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return 0;
     }
-
 
     static String readUDPPacket() {
         if(udpSocket == null) udpNetworkSetup();
@@ -112,18 +103,14 @@ public class NetworkHandler {
             Compat.prepareLooper();
             try {
                 tcpSocket = new Socket();
-                try { tcpSocket.connect(new InetSocketAddress(IP, port), 1000); }
-                catch (Exception e) {
-                    Compat.log("TCPNetworkSetupThread", "Timed out");
-                    tcpSocket = null;
-                    tcpConnectionInProgress = false;
-                    return; }
-                tcpInput = new BufferedReader(new InputStreamReader(tcpSocket.getInputStream()));
-                tcpOutput = new PrintWriter(tcpSocket.getOutputStream());
+                tcpSocket.connect(new InetSocketAddress(IP, port), 1000);
+                tcpInput = tcpSocket.getInputStream();
+                tcpOutput = tcpSocket.getOutputStream();
 
                 Compat.log("TCPNetworkSetupThread", "TCP is gucci");
-            } catch (ConnectException e) {
+            } catch (SocketTimeoutException e) {
                 Compat.log("TCPNetworkSetupThread", "TCP connection timed out");
+                tcpSocket = null;
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -15,10 +15,19 @@ public class CommandHandler
     public static void loop() {
         long millis = System.currentTimeMillis();
 
-        //  Ping
-        if(millis - lastPingTime > PING_PERIOD) {
-            lastPingTime = millis;
-            pingTCP();
+        //  receive TCP
+        char tcpHeader = NetworkHandler.readTCPByte();
+
+        if(tcpHeader != 0) {
+            //  ========================================================================
+            //  Command and Data Handling goes here
+
+            //  ping!
+            if (tcpHeader == 0xF0)
+            {
+                // pong!
+                pongTCP();
+            }
         }
     }
 
@@ -31,17 +40,18 @@ public class CommandHandler
 
         speed = Utilities.map(speed, 0, 100, 0, 255);
 
-        char[] toSend = {0xB0, (char) motor, (char) speed };
+        byte[] toSend = { (byte) 0xB0, (byte) motor, (byte) speed };
         NetworkHandler.sendTCP(toSend);
     }
 
-    public static void pingTCP() {
-        char[] toSend = {0xF0};
+    public static void pongTCP() {
+        byte[] toSend = { (byte) 0xF1};
         NetworkHandler.sendTCP(toSend);
+        Compat.log("CDH", "Pong!");
     }
 
-    public static void pingUDP() {
-        byte[] toSend = {(byte) 0xF2};
+    public static void pongUDP() {
+        byte[] toSend = {(byte) 0xF3};
     }
 
 }
