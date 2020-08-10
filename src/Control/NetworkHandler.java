@@ -7,8 +7,8 @@ import java.net.*;
 
 public class NetworkHandler {
 
-//    static String IP = "192.168.1.1";
-    static String IP = "localhost";
+    static String IP = "10.10.10.10";
+//    static String IP = "localhost";
     static int port = 5414;
     // TCP
     static boolean tcpConnectionInProgress;

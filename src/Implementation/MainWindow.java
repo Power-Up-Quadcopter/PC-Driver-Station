@@ -36,6 +36,9 @@ public class MainWindow extends JFrame
     private JTextField tcpSendField;
     private JTextField udpSendField;
     private JButton tcpConnectButton;
+    private JComboBox comboBox1;
+    private JProgressBar progressBar1;
+    private JProgressBar progressBar2;
 
     public MainWindow() {
         add(rootPanel);     //  needed or else nothing will be on screen
