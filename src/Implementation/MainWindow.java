@@ -3,42 +3,64 @@ package Implementation;
 import Control.Constants;
 import Control.GUI_C;
 import Control.Utilities;
+import Imports.SmartScroller;
 
 import javax.swing.*;
 import javax.swing.plaf.SliderUI;
+import javax.swing.text.DefaultCaret;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class MainWindow extends JFrame
 {
-    private JTabbedPane tabs;
-    private JPanel rootPanel;
-    private JPanel tabControl;
-    private JPanel tabCamera;
-    private JPanel tabGPS;
-    private JPanel tabTuning;
-    private JPanel tabNetwork;
-    private JPanel tabSettings;
-    private JPanel tabDebug;
-    private JSlider sliderFR;
-    private JSlider sliderFL;
-    private JSlider sliderBL;
-    private JSlider sliderBR;
-    private JLabel labelSpeedFR;
-    private JLabel labelSpeedFL;
-    private JLabel labelSpeedBL;
-    private JLabel labelSpeedBR;
-    private JButton sendTcpBtn;
-    private JTextPane tcpTextPane;
-    private JTextPane udpTextPane;
-    private JButton sendUdpBtn;
-    private JTextField tcpSendField;
-    private JTextField udpSendField;
-    private JButton tcpConnectButton;
-    private JComboBox comboBox1;
-    private JProgressBar progressBar1;
-    private JProgressBar progressBar2;
+    public JTabbedPane tabs;
+    public JPanel rootPanel;
+    public JPanel tabControl;
+    public JPanel tabCamera;
+    public JPanel tabGPS;
+    public JPanel tabTuning;
+    public JPanel tabNetwork;
+    public JPanel tabSettings;
+    public JPanel tabDebug;
+    public JSlider sliderFR;
+    public JSlider sliderFL;
+    public JSlider sliderBL;
+    public JSlider sliderBR;
+    public JLabel labelSpeedFR;
+    public JLabel labelSpeedFL;
+    public JLabel labelSpeedBL;
+    public JLabel labelSpeedBR;
+    public JButton sendTcpBtn;
+    public JTextPane tcpTextPane;
+    public JTextPane udpTextPane;
+    public JButton sendUdpBtn;
+    public JTextField tcpSendField;
+    public JTextField udpSendField;
+    public JButton tcpConnectButton;
+    public JComboBox comboBox1;
+    public JProgressBar progressBar1;
+    public JProgressBar progressBar2;
+    public JLabel ctrlBtn_A;
+    public JLabel ctrlBtn_B;
+    public JLabel ctrlBtn_START;
+    public JLabel ctrlBtn_SELECT;
+    public JLabel ctrlBtn_JOYL;
+    public JLabel ctrlBtn_JOYR;
+    public JLabel ctrlBtn_LEFT;
+    public JLabel ctrlBtn_RIGHT;
+    public JLabel ctrlBtn_DOWN;
+    public JLabel ctrlBtn_UP;
+    public JLabel ctrlBtn_BR;
+    public JLabel ctrlBtn_BL;
+    public JLabel ctrlBtn_TR;
+    public JLabel ctrlBtn_TL;
+    public JTextArea textAreaTCP;
+    public JTextArea textAreaUDP;
+    public JScrollPane scrollPaneTCP;
+    public JScrollPane scrollPaneUDP;
+    private JTextField textField1;
+    private JButton a4Button;
 
     public MainWindow() {
         add(rootPanel);     //  needed or else nothing will be on screen
@@ -58,38 +80,16 @@ public class MainWindow extends JFrame
         tcpConnectButton.setFocusable(false);
         sendTcpBtn.setFocusable(false);
         sendUdpBtn.setFocusable(false);
-        tcpTextPane.setFocusable(false);
-        udpTextPane.setFocusable(false);
+
+        //  tcp/udp text area
+        textAreaTCP.setLineWrap(true);
+        textAreaUDP.setLineWrap(true);
+        new SmartScroller(scrollPaneTCP, SmartScroller.VERTICAL, SmartScroller.END);
+
+        //  add listeners
+        tcpConnectButton.addActionListener(e -> GUI_C.tcpConnect_btnHandler());
 
         setVisible(true);
-        tcpConnectButton.addActionListener(e -> GUI_C.tcpConnect_btnHandler());
-    }
-
-    public int getMotorSlider(int motor) {
-        if(motor == Constants.MOTOR_FR) {
-            return sliderFR.getValue();
-        } else if(motor == Constants.MOTOR_FL) {
-            return sliderFL.getValue();
-        } else if(motor == Constants.MOTOR_BL) {
-            return sliderBL.getValue();
-        } else if(motor == Constants.MOTOR_BR) {
-            return sliderBR.getValue();
-        }
-        return -1;
-    }
-
-    public void setMotorSliderText(int motor, int value) {
-        String valueStr = Utilities.padSpaces(value+"", 3, false);
-
-        if(motor == Constants.MOTOR_FR) {
-            labelSpeedFR.setText(valueStr);
-        } else if(motor == Constants.MOTOR_FL) {
-            labelSpeedFL.setText(valueStr);
-        } else if(motor == Constants.MOTOR_BL) {
-            labelSpeedBL.setText(valueStr);
-        } else if(motor == Constants.MOTOR_BR) {
-            labelSpeedBR.setText(valueStr);
-        }
     }
 
 }

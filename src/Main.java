@@ -1,5 +1,6 @@
 import Control.CommandHandler;
 import Control.GUI_C;
+import Implementation.Preferences;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Controller;
 import org.lwjgl.input.Controllers;
@@ -7,6 +8,8 @@ import org.lwjgl.input.Controllers;
 public class Main {
 
     public static void main(String[] args) {
+        Preferences.intialize();
+
         GUI_C.initialize();
         CommandHandler.initialize();
 
@@ -21,9 +24,8 @@ public class Main {
 
         for(int i = 0;i <  Controllers.getControllerCount(); i++) {
             c = Controllers.getController(i);
-            System.out.println(c.getName()  );
+            System.out.println(c.getName());
         }
-
     }
 
 }
