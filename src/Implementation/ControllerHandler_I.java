@@ -13,6 +13,9 @@ public class ControllerHandler_I {
     static ArrayList<Controller> controllers;
     static ArrayList<String> controllerNames;   //  parallel to controllers array
 
+    static Thread remappingThread;
+    static volatile boolean stopRemappingFlag;
+
     public static void initialize() {
         controllers = new ArrayList<>();
         Controller[] controllerArray;
@@ -67,6 +70,65 @@ public class ControllerHandler_I {
             else numButtons++;
         }
         GUI_I.setControllerProperties(numAxes, numButtons);
+    }
+
+    public static void remapControllerComponent(String componentName) {
+        stopRemappingFlag = false;
+
+        remappingThread = new Thread(() -> {
+            try {
+
+                //  keep track of initial button inputs on controller
+                controller.poll();
+                Component[] components = controller.getComponents();
+                float[] originalInputs = new float[components.length];
+                for(int i = 0; i < components.length; i++) {
+                    if(components[i].isAnalog()) continue;
+                    originalInputs[i] = components[i].getPollData();
+                }
+
+                while(true) {
+                    //  check if remapping is cancelled
+                    if(stopRemappingFlag) break;
+
+                    //  check for change in component value (button press)
+                    controller.poll();
+                    int componentIndex;
+                    for(componentIndex = 0; componentIndex < components.length; componentIndex++) {
+                        if(components[componentIndex].isAnalog()) continue;
+
+                        float pollData = components[componentIndex].getPollData();
+
+                        //  if the button was pressed initially, ignore falling edge of button release
+                        if(pollData < originalInputs[componentIndex]) originalInputs[componentIndex] = pollData;
+
+                        //  leave loop on rising edge
+                        if(pollData > originalInputs[componentIndex]) break;
+                    }
+
+                    //  if there has been a button press detected, save this data into preferences and stop remap
+                    if(componentIndex < components.length) {
+                        String key = componentName;
+                        String value = componentIndex+"";
+                        if(components[componentIndex].getIdentifier().getName().equals("pov")) {
+                            //  if the component is a pov stick, add pov and pov value to back of index. ex: "12pov0.25"
+                            value += "pov" + components;
+                        }
+                        Preferences.save(componentName, value);
+                        System.out.println(componentName + ":" + value);
+                        break;
+                    }
+
+                    Thread.sleep(50);
+                }
+                GUI_I.stopControllerMappingDialog();
+            } catch (Exception e) { e.printStackTrace(); }
+        });
+        remappingThread.start();
+    }
+
+    public static void cancelRemapControllerComponent() {
+        stopRemappingFlag = true;
     }
 
     public static void controllerReloadButtonListener() {

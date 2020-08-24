@@ -82,25 +82,33 @@ public class GUI_I
     }
 
     public static void startControllerMappingDialog(String componentName) {
-        JDialog dialog = new JDialog(window);
+        if(window.controllerComboBox.getSelectedIndex() == 0) return;
+
+        controllerMappingDialog = new JDialog(window);
         JLabel componentLabel = new JLabel("Press: " + componentName);
 
         componentLabel.setHorizontalAlignment(JLabel.CENTER);   //  center text on label
-        dialog.setContentPane(componentLabel);  //  put label into dialog
-        dialog.setMinimumSize(new Dimension(150, 70));  //  force size of dialog window
-        dialog.setMaximumSize(new Dimension(150, 70));
-        dialog.setLocationRelativeTo(window);   //  put dialog in middle of screen
-        dialog.setVisible(true);
+        controllerMappingDialog.setContentPane(componentLabel);  //  put label into dialog
+        controllerMappingDialog.setMinimumSize(new Dimension(150, 70));  //  force size of dialog window
+        controllerMappingDialog.setMaximumSize(new Dimension(150, 70));
+        controllerMappingDialog.setLocationRelativeTo(window);   //  put dialog in middle of screen
+        controllerMappingDialog.setVisible(true);
 
         //  dialog should cancel mapping operation on closing dialog window
-        dialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        dialog.addWindowListener(new WindowAdapter() {
+        controllerMappingDialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        controllerMappingDialog.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 super.windowClosing(e);
-                System.out.println("STOP");
+                ControllerHandler_I.cancelRemapControllerComponent();
             }
         });
+
+        ControllerHandler_I.remapControllerComponent(componentName);
+    }
+
+    public static void stopControllerMappingDialog() {
+        if(controllerMappingDialog != null) controllerMappingDialog.dispose();
     }
 
     public static void printTCPConsole(String s) {
