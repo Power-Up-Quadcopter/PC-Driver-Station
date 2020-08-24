@@ -1,9 +1,11 @@
 import Control.CommandHandler;
+import Control.ControllerHandler;
 import Control.GUI_C;
 import Implementation.Preferences;
-import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Controller;
-import org.lwjgl.input.Controllers;
+import net.java.games.input.*;
+
+import javax.swing.*;
+import java.util.ArrayList;
 
 public class Main {
 
@@ -11,21 +13,8 @@ public class Main {
         Preferences.intialize();
 
         GUI_C.initialize();
+        ControllerHandler.initialize();
         CommandHandler.initialize();
-
-
-        Controller c;
-        try {
-            Controllers.create();
-        } catch (LWJGLException e) {
-            e.printStackTrace();
-        }
-        Controllers.poll();
-
-        for(int i = 0;i <  Controllers.getControllerCount(); i++) {
-            c = Controllers.getController(i);
-            System.out.println(c.getName());
-        }
     }
 
 }

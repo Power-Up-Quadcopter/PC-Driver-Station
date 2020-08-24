@@ -2,15 +2,12 @@ package Implementation;
 
 import Control.Constants;
 import Control.GUI_C;
-import Control.Utilities;
 import Imports.SmartScroller;
+import org.lwjgl.input.Mouse;
 
 import javax.swing.*;
-import javax.swing.plaf.SliderUI;
-import javax.swing.text.DefaultCaret;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class MainWindow extends JFrame
 {
@@ -32,15 +29,12 @@ public class MainWindow extends JFrame
     public JLabel labelSpeedBL;
     public JLabel labelSpeedBR;
     public JButton sendTcpBtn;
-    public JTextPane tcpTextPane;
-    public JTextPane udpTextPane;
     public JButton sendUdpBtn;
     public JTextField tcpSendField;
     public JTextField udpSendField;
     public JButton tcpConnectButton;
-    public JComboBox comboBox1;
-    public JProgressBar progressBar1;
-    public JProgressBar progressBar2;
+    public JComboBox controllerComboBox;
+    public JProgressBar lx_progressBar;
     public JLabel ctrlBtn_A;
     public JLabel ctrlBtn_B;
     public JLabel ctrlBtn_START;
@@ -59,8 +53,14 @@ public class MainWindow extends JFrame
     public JTextArea textAreaUDP;
     public JScrollPane scrollPaneTCP;
     public JScrollPane scrollPaneUDP;
-    private JTextField textField1;
-    private JButton a4Button;
+    public JTextField textField1;
+    public JTextArea controllerPropertiesTextArea;
+    public JProgressBar rx_progressBar;
+    public JProgressBar ly_progressBar;
+    public JProgressBar ry_progressBar;
+    private JButton controllerReloadButton;
+    private JLabel ctrlBtn_X;
+    private JLabel ctrlBtn_Y;
 
     public MainWindow() {
         add(rootPanel);     //  needed or else nothing will be on screen
@@ -88,6 +88,40 @@ public class MainWindow extends JFrame
 
         //  add listeners
         tcpConnectButton.addActionListener(e -> GUI_C.tcpConnect_btnHandler());
+        controllerReloadButton.addActionListener(e -> ControllerHandler_I.controllerReloadButtonListener());
+        controllerComboBox.addItemListener(e -> ControllerHandler_I.controllerComboBoxListener());
+        ctrlBtn_A.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_A); } });
+        ctrlBtn_B.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_B); } });
+        ctrlBtn_X.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_X); } });
+        ctrlBtn_Y.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_Y); } });
+        ctrlBtn_BL.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_BL); } });
+        ctrlBtn_BR.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_BR); } });
+        ctrlBtn_TL.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_TL); } });
+        ctrlBtn_TR.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_TR); } });
+        ctrlBtn_START.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_START); } });
+        ctrlBtn_SELECT.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_SELECT); } });
+        ctrlBtn_UP.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_UP); } });
+        ctrlBtn_DOWN.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_DOWN); } });
+        ctrlBtn_LEFT.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_LEFT); } });
+        ctrlBtn_RIGHT.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_RIGHT); } });
+        ctrlBtn_JOYL.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_JOYL); } });
+        ctrlBtn_JOYR.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_JOYR); } });
 
         setVisible(true);
     }

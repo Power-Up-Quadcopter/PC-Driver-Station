@@ -10,8 +10,8 @@ public class Preferences {
     static final String HEADER_TEXT = "// Keys and data are formatted like so: \"KEY:DATA\"\n" +
                                     "// Lines can be commented out using double backslashes\n\n";
 
-    static final String KEY_REGEX = "[a-zA-Z0-9_]+";    //  alphanumeric, underscore
-    static final String VALUE_REGEX = "[ a-zA-Z0-9.]+";     //  alphanumeric, spaces
+    static final String KEY_REGEX = "[a-zA-Z0-9_]+";
+    static final String VALUE_REGEX = "[a-zA-Z0-9 .,-_'\"/():;]+";
 
     static HashMap<String, String> map = new HashMap<>();  //  data is saved in key, value format
 
@@ -45,7 +45,7 @@ public class Preferences {
                 String value = pair[1];
 
                 //  check if value has key that contains period but isn't actually float
-                if(value.contains(".") && (!value.matches("^[0-9]*.[0-9]*") || value.length() == 1)) continue;
+//                if(value.contains(".") && (!value.matches("^[0-9]*.[0-9]*") || value.length() == 1)) continue;
 
                 //  all checks passed at this point, record down data. duplicates will be overwritten
                 map.put(key, value);
