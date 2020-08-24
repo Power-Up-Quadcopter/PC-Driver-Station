@@ -8,6 +8,8 @@ public class Constants
     public static int MOTOR_BL = 2;
     public static int MOTOR_BR = 3;
 
+    public static final double CONTROLLER_REMAP_DEADZONE = 0.1;
+
     public static final String CONTROLLER_BTN_A = "A";
     public static final String CONTROLLER_BTN_B = "B";
     public static final String CONTROLLER_BTN_X = "X";

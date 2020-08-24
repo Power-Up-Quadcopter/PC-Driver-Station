@@ -10,8 +10,8 @@ public class Preferences {
     static final String HEADER_TEXT = "// Keys and data are formatted like so: \"KEY:DATA\"\n" +
                                     "// Lines can be commented out using double backslashes\n\n";
 
-    static final String KEY_REGEX = "[a-zA-Z0-9_]+";
-    static final String VALUE_REGEX = "[a-zA-Z0-9 .,-_'\"/():;]+";
+    static final String KEY_REGEX = "[a-zA-Z0-9 _.,+-_'\"/();]+";
+    static final String VALUE_REGEX = "[a-zA-Z0-9 .,+-_'\"/();]+";
 
     static HashMap<String, String> map = new HashMap<>();  //  data is saved in key, value format
 

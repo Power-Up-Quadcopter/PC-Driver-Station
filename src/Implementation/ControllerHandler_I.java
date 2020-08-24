@@ -1,5 +1,6 @@
 package Implementation;
 
+import Control.Constants;
 import net.java.games.input.Component;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
@@ -83,7 +84,6 @@ public class ControllerHandler_I {
                 Component[] components = controller.getComponents();
                 float[] originalInputs = new float[components.length];
                 for(int i = 0; i < components.length; i++) {
-                    if(components[i].isAnalog()) continue;
                     originalInputs[i] = components[i].getPollData();
                 }
 
@@ -95,15 +95,20 @@ public class ControllerHandler_I {
                     controller.poll();
                     int componentIndex;
                     for(componentIndex = 0; componentIndex < components.length; componentIndex++) {
-                        if(components[componentIndex].isAnalog()) continue;
-
                         float pollData = components[componentIndex].getPollData();
 
                         //  if the button was pressed initially, ignore falling edge of button release
-                        if(pollData < originalInputs[componentIndex]) originalInputs[componentIndex] = pollData;
+                        if(Math.abs(pollData) < Math.abs(originalInputs[componentIndex])) originalInputs[componentIndex] = pollData;
+
+                        //  joysticks are processed differently
+                        else if(components[componentIndex].isAnalog()) {
+                            //  check both +/- on axes and deadzone
+                            if(Math.abs(pollData - originalInputs[componentIndex])
+                                    >= Constants.CONTROLLER_REMAP_DEADZONE) break;
+                        }
 
                         //  leave loop on rising edge
-                        if(pollData > originalInputs[componentIndex]) break;
+                        else if(pollData > originalInputs[componentIndex]) break;
                     }
 
                     //  if there has been a button press detected, save this data into preferences and stop remap
@@ -111,10 +116,17 @@ public class ControllerHandler_I {
                         String key = componentName;
                         String value = componentIndex+"";
                         if(components[componentIndex].getIdentifier().getName().equals("pov")) {
-                            //  if the component is a pov stick, add pov and pov value to back of index. ex: "12pov0.25"
-                            value += "pov" + components;
+                            //  if the component is a pov stick, add pov to back of index. ex: "12pov0.25"
+                            value += "pov" + components[componentIndex].getPollData();
+                        } else if(components[componentIndex].isAnalog()) {
+                            //  mark component as joystick in preferences
+                            value += "axis";
+
+                            //  for joysticks, check the direction of change. Mark with - or + in key
+                            if(originalInputs[componentIndex] > components[componentIndex].getPollData()) value += "-";
+                            else value += "+";
                         }
-                        Preferences.save(componentName, value);
+                        Preferences.save(key, value);
                         System.out.println(componentName + ":" + value);
                         break;
                     }

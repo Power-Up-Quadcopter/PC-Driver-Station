@@ -84,6 +84,10 @@ public class GUI_I
     public static void startControllerMappingDialog(String componentName) {
         if(window.controllerComboBox.getSelectedIndex() == 0) return;
 
+        //  Don't start if dialog hasn't been fully disposed and destroyed.
+        //  This means that a remap is currently still happening.
+        if(controllerMappingDialog != null) return;
+
         controllerMappingDialog = new JDialog(window);
         JLabel componentLabel = new JLabel("Press: " + componentName);
 
@@ -109,6 +113,7 @@ public class GUI_I
 
     public static void stopControllerMappingDialog() {
         if(controllerMappingDialog != null) controllerMappingDialog.dispose();
+        controllerMappingDialog = null;
     }
 
     public static void printTCPConsole(String s) {
