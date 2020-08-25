@@ -6,6 +6,7 @@ import net.java.games.input.Component;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
 
+import javax.swing.*;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,10 +24,10 @@ public class ControllerHandler_I {
     static Thread remappingThread;
     static Thread monitorThread;
     static volatile boolean stopRemappingFlag;
-    static volatile boolean stopMonitoringFlag;
 
     public static void initialize() {
         findController();
+        startControllerDisplayThread();
         startMonitorControllerThread();
     }
 
@@ -147,7 +148,6 @@ public class ControllerHandler_I {
                                 value += "btn";
                             }
                             Preferences.save(key, value);
-                            System.out.println(componentName + ":" + value);
                             break;
                         }
 
@@ -206,11 +206,11 @@ public class ControllerHandler_I {
                                 //  check for edge
                                 if(previousPreviousValue < previousValue && previousValue > value) {
                                     //  falling edge - non inverted
-                                    System.out.println("not invert");
+                                    Preferences.save(componentName, detectedAxis + "axis+");
                                     break;
                                 } else if(previousPreviousValue > previousValue && previousValue < value) {
                                     //  rising edge - inverted
-                                    System.out.println("inverted");
+                                    Preferences.save(componentName, detectedAxis + "axis-");
                                     break;
                                 }
                                 else {
@@ -265,6 +265,8 @@ public class ControllerHandler_I {
                                         case Constants.CONTROLLER_BTN_Y: ControllerHandler.BTN_Y = pressed; break;
                                         case Constants.CONTROLLER_BTN_BL: ControllerHandler.BTN_BL = pressed; break;
                                         case Constants.CONTROLLER_BTN_BR: ControllerHandler.BTN_BR = pressed; break;
+                                        case Constants.CONTROLLER_BTN_TL: ControllerHandler.BTN_TL = pressed; break;
+                                        case Constants.CONTROLLER_BTN_TR: ControllerHandler.BTN_TR = pressed; break;
                                         case Constants.CONTROLLER_BTN_START: ControllerHandler.BTN_START = pressed; break;
                                         case Constants.CONTROLLER_BTN_SELECT: ControllerHandler.BTN_SELECT = pressed; break;
                                         case Constants.CONTROLLER_BTN_JOYL: ControllerHandler.BTN_JOYL = pressed; break;
@@ -272,51 +274,108 @@ public class ControllerHandler_I {
                                     }
                                     break;
                                 case Constants.CONTROLLER_COMPONENT_TYPE_AXIS:
+                                    float value = components[i].getPollData();
+                                    if(component.axisInverted) value = -value;
+
+                                    boolean pressedValue = value > Constants.CONTROLLER_REMAP_DEADZONE;
+                                    System.out.println(value);
+
+                                    switch(inputName) {
+                                        case Constants.CONTROLLER_AXIS_LX: ControllerHandler.AXIS_LX = value; break;
+                                        case Constants.CONTROLLER_AXIS_LY: ControllerHandler.AXIS_LY = value; break;
+                                        case Constants.CONTROLLER_AXIS_RX: ControllerHandler.AXIS_RX = value; break;
+                                        case Constants.CONTROLLER_AXIS_RY: ControllerHandler.AXIS_RY = value; break;
+
+                                        case Constants.CONTROLLER_BTN_A: ControllerHandler.BTN_A = pressedValue; break;
+                                        case Constants.CONTROLLER_BTN_B: ControllerHandler.BTN_B = pressedValue; break;
+                                        case Constants.CONTROLLER_BTN_X: ControllerHandler.BTN_X = pressedValue; break;
+                                        case Constants.CONTROLLER_BTN_Y: ControllerHandler.BTN_Y = pressedValue; break;
+                                        case Constants.CONTROLLER_BTN_BL: ControllerHandler.BTN_BL = pressedValue; break;
+                                        case Constants.CONTROLLER_BTN_BR: ControllerHandler.BTN_BR = pressedValue; break;
+                                        case Constants.CONTROLLER_BTN_TL: ControllerHandler.BTN_TL = pressedValue; break;
+                                        case Constants.CONTROLLER_BTN_TR: ControllerHandler.BTN_TR = pressedValue; break;
+                                        case Constants.CONTROLLER_BTN_START: ControllerHandler.BTN_START = pressedValue; break;
+                                        case Constants.CONTROLLER_BTN_SELECT: ControllerHandler.BTN_SELECT = pressedValue; break;
+                                        case Constants.CONTROLLER_BTN_JOYL: ControllerHandler.BTN_JOYL = pressedValue; break;
+                                        case Constants.CONTROLLER_BTN_JOYR: ControllerHandler.BTN_JOYR = pressedValue; break;
+                                    }
+
                                     break;
                                 case Constants.CONTROLLER_COMPONENT_TYPE_POV:
                                     //  buffer final outputs
-                                    boolean up = false;
-                                    boolean down = false;
-                                    boolean left = false;
-                                    boolean right = false;
+                                    int up = -1;
+                                    int down = -1;
+                                    int left = -1;
+                                    int right = -1;
+                                    int a = -1;
+                                    int b = -1;
+                                    int x = -1;
+                                    int y = -1;
+                                    int bl = -1;
+                                    int br = -1;
+                                    int tl = -1;
+                                    int tr = -1;
+                                    int start = -1;
+                                    int select = -1;
+                                    int joyl = -1;
+                                    int joyr = -1;
 
                                     //  get the values for the keys, compare with expected values to find which btn is being pressed
-                                    String upKey = Preferences.get(Constants.CONTROLLER_BTN_UP, "-");
-                                    String downKey = Preferences.get(Constants.CONTROLLER_BTN_DOWN, "-");
-                                    String leftKey = Preferences.get(Constants.CONTROLLER_BTN_LEFT, "-");
-                                    String rightKey = Preferences.get(Constants.CONTROLLER_BTN_RIGHT, "-");
+                                    String key_up = Preferences.get(Constants.CONTROLLER_BTN_UP, "-");
+                                    String key_down = Preferences.get(Constants.CONTROLLER_BTN_DOWN, "-");
+                                    String key_left = Preferences.get(Constants.CONTROLLER_BTN_LEFT, "-");
+                                    String key_right = Preferences.get(Constants.CONTROLLER_BTN_RIGHT, "-");
+                                    String key_A = Preferences.get(Constants.CONTROLLER_BTN_A, "-");
+                                    String key_B = Preferences.get(Constants.CONTROLLER_BTN_B, "-");
+                                    String key_X = Preferences.get(Constants.CONTROLLER_BTN_X, "-");
+                                    String key_Y = Preferences.get(Constants.CONTROLLER_BTN_Y, "-");
+                                    String key_BL = Preferences.get(Constants.CONTROLLER_BTN_BL, "-");
+                                    String key_BR = Preferences.get(Constants.CONTROLLER_BTN_BR, "-");
+                                    String key_TL = Preferences.get(Constants.CONTROLLER_BTN_TL, "-");
+                                    String key_TR = Preferences.get(Constants.CONTROLLER_BTN_TR, "-");
+                                    String key_START = Preferences.get(Constants.CONTROLLER_BTN_START, "-");
+                                    String key_SELECT = Preferences.get(Constants.CONTROLLER_BTN_SELECT, "-");
+                                    String key_JOYL = Preferences.get(Constants.CONTROLLER_BTN_JOYL, "-");
+                                    String key_JOYR = Preferences.get(Constants.CONTROLLER_BTN_JOYR, "-");
 
                                     float povValue = components[i].getPollData();
+
+                                    String[] valueCheck = {"", ""};
 
                                     if(povValue == 0) {
                                         //  no dpad buttons pressed, just use the buffered values
                                     } else if(povValue % 0.25 == 0) {
                                         //  single button pressed
 
-                                        String expectedValue = i + "pov" + povValue;
-
-                                        if(expectedValue.equals(upKey)) up = true;
-                                        else if(expectedValue.equals(downKey)) down = true;
-                                        else if(expectedValue.equals(leftKey))  left = true;
-                                        else if(expectedValue.equals(rightKey))  right = true;
+                                        valueCheck[0] = i + "pov" + povValue;
                                     } else {
-                                        //  multiple buttons pressed
+                                        //  2 buttons pressed
                                         float first = povValue - 0.125f;
                                         float second = povValue + 0.125f;
 
-                                        String firstExpectedValue = i + "pov" + first;
-                                        String secondExpectedValue = i + "pov" + second;
-
-                                        if(firstExpectedValue.equals(upKey)) up = true;
-                                        else if(firstExpectedValue.equals(downKey)) down = true;
-                                        else if(firstExpectedValue.equals(leftKey))  left = true;
-                                        else if(firstExpectedValue.equals(rightKey))  right = true;
-
-                                        if(secondExpectedValue.equals(upKey)) up = true;
-                                        else if(secondExpectedValue.equals(downKey)) down = true;
-                                        else if(secondExpectedValue.equals(leftKey))  left = true;
-                                        else if(secondExpectedValue.equals(rightKey))  right = true;
+                                        valueCheck[0] = i + "pov" + first;
+                                        valueCheck[1] = i + "pov" + second;
                                     }
+
+                                    for(String valueSearch : valueCheck) {
+                                        if(valueSearch.equals(key_up)) up = true;
+                                        else if(valueSearch.equals(key_down)) down = true;
+                                        else if(valueSearch.equals(key_left)) left = true;
+                                        else if(valueSearch.equals(key_right)) right = true;
+                                        else if(valueSearch.equals(key_A)) a = true;
+                                        else if(valueSearch.equals(key_B)) b = true;
+                                        else if(valueSearch.equals(key_X)) x = true;
+                                        else if(valueSearch.equals(key_Y)) y = true;
+                                        else if(valueSearch.equals(key_BL)) bl = true;
+                                        else if(valueSearch.equals(key_BR)) br = true;
+                                        else if(valueSearch.equals(key_TL)) tl = true;
+                                        else if(valueSearch.equals(key_TR)) tr = true;
+                                        else if(valueSearch.equals(key_START)) start = true;
+                                        else if(valueSearch.equals(key_SELECT)) select = true;
+                                        else if(valueSearch.equals(key_JOYL)) joyl = true;
+                                        else if(valueSearch.equals(key_JOYR)) joyr = true;
+                                    }
+
                                     ControllerHandler.BTN_UP = up;
                                     ControllerHandler.BTN_DOWN = down;
                                     ControllerHandler.BTN_LEFT = left;
@@ -330,6 +389,17 @@ public class ControllerHandler_I {
         });
 
         monitorThread.start();
+    }
+
+    public static void startControllerDisplayThread() {
+        new Thread( () -> {
+            try {
+                while(true) {
+                    ControllerHandler.displayInputs();
+                    Thread.sleep(50);
+                }
+            } catch (Exception e) { e.printStackTrace(); }
+        }).start();
     }
 
     public static void reloadMappingPreferences() {
@@ -382,6 +452,7 @@ class InputComponent {
             componentType = Constants.CONTROLLER_COMPONENT_TYPE_POV;
             String[] delimited = savedValue.split("pov");
             componentIndex = Integer.parseInt(delimited[0]);
+            povValue = Float.parseFloat(delimited[1]);
         }
     }
 
