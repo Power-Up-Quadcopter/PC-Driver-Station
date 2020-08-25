@@ -1,6 +1,7 @@
 package Control;
 
 import Implementation.ControllerHandler_I;
+import Implementation.GUI_I;
 
 public class ControllerHandler {
 
@@ -12,6 +13,8 @@ public class ControllerHandler {
     public static volatile boolean BTN_SELECT = false;
     public static volatile boolean BTN_BL = false;
     public static volatile boolean BTN_BR = false;
+    public static volatile boolean BTN_TL = false;
+    public static volatile boolean BTN_TR = false;
     public static volatile boolean BTN_JOYL = false;
     public static volatile boolean BTN_JOYR = false;
     public static volatile boolean BTN_UP = false;
@@ -25,6 +28,12 @@ public class ControllerHandler {
 
     public static void initialize() {
         ControllerHandler_I.initialize();
+    }
+
+    public static void displayInputs() {
+        GUI_I.displayInputs(BTN_A, BTN_B, BTN_X, BTN_Y, BTN_START, BTN_SELECT, BTN_BL, BTN_BR, BTN_TL, BTN_TR,
+                BTN_JOYL, BTN_JOYR, BTN_UP, BTN_DOWN, BTN_LEFT, BTN_RIGHT,
+                AXIS_LX, AXIS_LY, AXIS_RX, AXIS_RY);
     }
 
 }

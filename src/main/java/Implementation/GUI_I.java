@@ -138,6 +138,37 @@ public class GUI_I
         controllerMappingDialog = null;
     }
 
+
+    public static void displayInputs(boolean A, boolean B, boolean X, boolean Y,
+                                     boolean START, boolean SELECT, boolean BL, boolean BR, boolean TL, boolean TR,
+                                     boolean JOYL, boolean JOYR, boolean UP, boolean DOWN, boolean LEFT, boolean RIGHT,
+                                     float lx, float ly, float rx, float ry) {
+        Color on = new Color(27,252,113);
+        Color off = new Color(75,75, 75);
+
+        window.ctrlBtn_A.setBackground(A ? on : off);
+        window.ctrlBtn_B.setBackground(B ? on : off);
+        window.ctrlBtn_X.setBackground(X ? on : off);
+        window.ctrlBtn_Y.setBackground(Y ? on : off);
+        window.ctrlBtn_START.setBackground(START ? on : off);
+        window.ctrlBtn_SELECT.setBackground(SELECT ? on : off);
+        window.ctrlBtn_BL.setBackground(BL ? on : off);
+        window.ctrlBtn_BR.setBackground(BR ? on : off);
+        window.ctrlBtn_TL.setBackground(TL ? on : off);
+        window.ctrlBtn_TR.setBackground(TR ? on : off);
+        window.ctrlBtn_JOYL.setBackground(JOYL ? on : off);
+        window.ctrlBtn_JOYR.setBackground(JOYR ? on : off);
+        window.ctrlBtn_UP.setBackground(UP ? on : off);
+        window.ctrlBtn_DOWN.setBackground(DOWN ? on : off);
+        window.ctrlBtn_LEFT.setBackground(LEFT ? on : off);
+        window.ctrlBtn_RIGHT.setBackground(RIGHT ? on : off);
+
+        window.lx_progressBar.setValue(Math.round(lx * 100));
+        window.ly_progressBar.setValue(Math.round(ly * 100));
+        window.rx_progressBar.setValue(Math.round(rx * 100));
+        window.ry_progressBar.setValue(Math.round(ry * 100));
+    }
+
     public static void printTCPConsole(String s) {
         String timeStamp = new SimpleDateFormat("hh:mm:ss").format(new Date());
         String formatted = String.format("[%s] %s\n", timeStamp, s);
