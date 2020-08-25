@@ -58,6 +58,7 @@ public class Preferences {
         }
     }
 
+    //  rewrites file with map entries
     public static void rewriteFile() {
         try {
             //  write to copy file, rewrite everything to only keep valid data
@@ -120,12 +121,24 @@ public class Preferences {
         if(map.containsKey(key)) {
             return map.get(key);
         }
-        else {
-            //  entry doesn't exist yet, add to map and return backup
-            map.put(key, backup);
-            rewriteFile();
-            return backup;
+//        else {
+//            //  entry doesn't exist yet, add to map and return backup
+//            map.put(key, backup);
+//            rewriteFile();
+//            return backup;
+//        }
+        return backup;
+    }
+
+    public static void deleteEntriesWithValue(int value) { deleteEntriesWithValue(value+""); }
+
+    public static void deleteEntriesWithValue(double value) { deleteEntriesWithValue(value+""); }
+
+    public static void deleteEntriesWithValue(String value) {
+        for(String key : map.keySet()) {
+            if(map.get(key).equals(value)) map.remove(key);
         }
+        rewriteFile();
     }
 
 }

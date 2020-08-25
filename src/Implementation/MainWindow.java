@@ -9,6 +9,9 @@ import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import static Control.Constants.CONTROLLER_COMPONENT_TYPE_AXIS;
+import static Control.Constants.CONTROLLER_COMPONENT_TYPE_BUTTON;
+
 public class MainWindow extends JFrame
 {
     public JTabbedPane tabs;
@@ -34,7 +37,6 @@ public class MainWindow extends JFrame
     public JTextField udpSendField;
     public JButton tcpConnectButton;
     public JComboBox controllerComboBox;
-    public JProgressBar lx_progressBar;
     public JLabel ctrlBtn_A;
     public JLabel ctrlBtn_B;
     public JLabel ctrlBtn_START;
@@ -55,12 +57,13 @@ public class MainWindow extends JFrame
     public JScrollPane scrollPaneUDP;
     public JTextField textField1;
     public JTextArea controllerPropertiesTextArea;
+    public JProgressBar lx_progressBar;
     public JProgressBar rx_progressBar;
     public JProgressBar ly_progressBar;
     public JProgressBar ry_progressBar;
-    private JButton controllerReloadButton;
-    private JLabel ctrlBtn_X;
-    private JLabel ctrlBtn_Y;
+    public JButton controllerReloadButton;
+    public JLabel ctrlBtn_X;
+    public JLabel ctrlBtn_Y;
 
     public MainWindow() {
         add(rootPanel);     //  needed or else nothing will be on screen
@@ -91,37 +94,45 @@ public class MainWindow extends JFrame
         controllerReloadButton.addActionListener(e -> ControllerHandler_I.controllerReloadButtonListener());
         controllerComboBox.addItemListener(e -> ControllerHandler_I.controllerComboBoxListener());
         ctrlBtn_A.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
-            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_A); } });
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_A, CONTROLLER_COMPONENT_TYPE_BUTTON); } });
         ctrlBtn_B.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
-            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_B); } });
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_B, CONTROLLER_COMPONENT_TYPE_BUTTON); } });
         ctrlBtn_X.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
-            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_X); } });
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_X, CONTROLLER_COMPONENT_TYPE_BUTTON); } });
         ctrlBtn_Y.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
-            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_Y); } });
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_Y, CONTROLLER_COMPONENT_TYPE_BUTTON); } });
         ctrlBtn_BL.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
-            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_BL); } });
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_BL, CONTROLLER_COMPONENT_TYPE_BUTTON); } });
         ctrlBtn_BR.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
-            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_BR); } });
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_BR, CONTROLLER_COMPONENT_TYPE_BUTTON); } });
         ctrlBtn_TL.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
-            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_TL); } });
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_TL, CONTROLLER_COMPONENT_TYPE_BUTTON); } });
         ctrlBtn_TR.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
-            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_TR); } });
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_TR, CONTROLLER_COMPONENT_TYPE_BUTTON); } });
         ctrlBtn_START.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
-            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_START); } });
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_START, CONTROLLER_COMPONENT_TYPE_BUTTON); } });
         ctrlBtn_SELECT.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
-            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_SELECT); } });
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_SELECT, CONTROLLER_COMPONENT_TYPE_BUTTON); } });
         ctrlBtn_UP.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
-            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_UP); } });
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_UP, CONTROLLER_COMPONENT_TYPE_BUTTON); } });
         ctrlBtn_DOWN.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
-            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_DOWN); } });
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_DOWN, CONTROLLER_COMPONENT_TYPE_BUTTON); } });
         ctrlBtn_LEFT.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
-            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_LEFT); } });
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_LEFT, CONTROLLER_COMPONENT_TYPE_BUTTON); } });
         ctrlBtn_RIGHT.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
-            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_RIGHT); } });
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_RIGHT, CONTROLLER_COMPONENT_TYPE_BUTTON); } });
         ctrlBtn_JOYL.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
-            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_JOYL); } });
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_JOYL, CONTROLLER_COMPONENT_TYPE_BUTTON); } });
         ctrlBtn_JOYR.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
-            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_JOYR); } });
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_BTN_JOYR, CONTROLLER_COMPONENT_TYPE_BUTTON); } });
+        rx_progressBar.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_AXIS_RX, CONTROLLER_COMPONENT_TYPE_AXIS); } });
+        ry_progressBar.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_AXIS_RY, CONTROLLER_COMPONENT_TYPE_AXIS); } });
+        lx_progressBar.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_AXIS_LX, CONTROLLER_COMPONENT_TYPE_AXIS); } });
+        ly_progressBar.addMouseListener(new MouseAdapter() { @Override public void mouseClicked(MouseEvent e) {
+            GUI_I.startControllerMappingDialog(Constants.CONTROLLER_AXIS_LY, CONTROLLER_COMPONENT_TYPE_AXIS); } });
 
         setVisible(true);
     }

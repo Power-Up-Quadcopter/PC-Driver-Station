@@ -6,6 +6,9 @@ package Implementation;
 
 import Control.*;
 import javax.swing.*;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -81,20 +84,38 @@ public class GUI_I
         window.controllerPropertiesTextArea.setText(toDisplay);
     }
 
-    public static void startControllerMappingDialog(String componentName) {
+    public static void startControllerMappingDialog(String componentName, int componentType) {
         if(window.controllerComboBox.getSelectedIndex() == 0) return;
 
         //  Don't start if dialog hasn't been fully disposed and destroyed.
         //  This means that a remap is currently still happening.
         if(controllerMappingDialog != null) return;
 
-        controllerMappingDialog = new JDialog(window);
-        JLabel componentLabel = new JLabel("Press: " + componentName);
+        //  first, start the remapping thread
+        ControllerHandler_I.remapControllerComponent(componentName, componentType);
 
-        componentLabel.setHorizontalAlignment(JLabel.CENTER);   //  center text on label
-        controllerMappingDialog.setContentPane(componentLabel);  //  put label into dialog
-        controllerMappingDialog.setMinimumSize(new Dimension(150, 70));  //  force size of dialog window
-        controllerMappingDialog.setMaximumSize(new Dimension(150, 70));
+        //  next, start the window dialog
+        controllerMappingDialog = new JDialog(window);
+        JTextPane componentTextPane = new JTextPane();
+        componentTextPane.setEditable(false);
+        componentTextPane.setFocusable(false);
+        componentTextPane.setOpaque(false);
+
+        //  the following code centers text in the textPane
+        SimpleAttributeSet attribs = new SimpleAttributeSet();
+        StyleConstants.setAlignment(attribs, StyleConstants.ALIGN_CENTER);
+        componentTextPane.setParagraphAttributes(attribs, true);
+
+        if(componentType == Constants.CONTROLLER_COMPONENT_TYPE_BUTTON) {
+            //  press button message
+            componentTextPane.setText("Press: " + componentName);
+        } else {
+            componentTextPane.setText("Move: " + componentName + "\nMove up first, then down");
+        }
+
+        controllerMappingDialog.setContentPane(componentTextPane);  //  put label into dialog
+        controllerMappingDialog.setMinimumSize(new Dimension(250, 80));  //  force size of dialog window
+        controllerMappingDialog.setMaximumSize(new Dimension(250, 80));
         controllerMappingDialog.setLocationRelativeTo(window);   //  put dialog in middle of screen
         controllerMappingDialog.setVisible(true);
 
@@ -103,15 +124,16 @@ public class GUI_I
         controllerMappingDialog.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                super.windowClosing(e);
-                ControllerHandler_I.cancelRemapControllerComponent();
+                stopControllerMappingDialog();
             }
         });
-
-        ControllerHandler_I.remapControllerComponent(componentName);
     }
 
     public static void stopControllerMappingDialog() {
+        //  stop remapping thread
+        ControllerHandler_I.cancelRemapControllerComponent();
+
+        //  destroy window
         if(controllerMappingDialog != null) controllerMappingDialog.dispose();
         controllerMappingDialog = null;
     }
