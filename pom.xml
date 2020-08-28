@@ -23,11 +23,6 @@
             <version>2.0.9</version>
             <classifier>natives-all</classifier>
         </dependency>
-        <dependency>
-            <groupId>org.lwjgl</groupId>
-            <artifactId>lwjgl</artifactId>
-            <version>3.2.3</version>
-        </dependency>
     </dependencies>
 
 </project>

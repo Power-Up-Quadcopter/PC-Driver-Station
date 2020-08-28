@@ -1,7 +1,10 @@
 package Implementation;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
 public class Preferences {
 
@@ -131,11 +134,11 @@ public class Preferences {
     }
 
     public static void deleteEntriesWithValue(int value) { deleteEntriesWithValue(value+""); }
-
     public static void deleteEntriesWithValue(double value) { deleteEntriesWithValue(value+""); }
 
     public static void deleteEntriesWithValue(String value) {
-        for(String key : map.keySet()) {
+        List<String> keyList = new ArrayList<>(map.keySet());
+        for(String key : keyList) {
             if(map.get(key).equals(value)) map.remove(key);
         }
         rewriteFile();

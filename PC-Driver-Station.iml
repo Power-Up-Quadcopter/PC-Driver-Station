@@ -11,8 +11,8 @@
     </content>
     <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="drivers" level="project" />
     <orderEntry type="library" name="Maven: net.java.jinput:jinput:2.0.9" level="project" />
     <orderEntry type="library" name="Maven: net.java.jinput:jinput:natives-all:2.0.9" level="project" />
-    <orderEntry type="library" name="Maven: org.lwjgl:lwjgl:3.2.3" level="project" />
   </component>
 </module>

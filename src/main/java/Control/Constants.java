@@ -12,7 +12,8 @@ public class Constants
     public static final int CONTROLLER_COMPONENT_TYPE_AXIS = 1;
     public static final int CONTROLLER_COMPONENT_TYPE_POV = 2;
 
-    public static final double CONTROLLER_REMAP_DEADZONE = 0.2;
+    public static final double CONTROLLER_DETECT_DEADZONE = 0.2;
+    public static final int CONTROLLER_INPUT_WATCHDOG_TIMER_MS = 100;
 
     public static final String CONTROLLER_BTN_A = "A";
     public static final String CONTROLLER_BTN_B = "B";

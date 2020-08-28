@@ -88,6 +88,16 @@ public class MainWindow extends JFrame
         textAreaUDP.setLineWrap(true);
         new SmartScroller(scrollPaneTCP, SmartScroller.VERTICAL, SmartScroller.END);
 
+        //  progress bar slider range
+        lx_progressBar.setMinimum(-100);
+        lx_progressBar.setMaximum(100);
+        ly_progressBar.setMinimum(-100);
+        ly_progressBar.setMaximum(100);
+        rx_progressBar.setMinimum(-100);
+        rx_progressBar.setMaximum(100);
+        ry_progressBar.setMinimum(-100);
+        ry_progressBar.setMaximum(100);
+
         //  add listeners
         tcpConnectButton.addActionListener(e -> GUI_C.tcpConnect_btnHandler());
         controllerReloadButton.addActionListener(e -> ControllerHandler_I.controllerReloadButtonListener());

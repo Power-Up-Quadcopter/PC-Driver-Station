@@ -6,7 +6,6 @@ import net.java.games.input.Component;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
 
-import javax.swing.*;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +19,7 @@ public class ControllerHandler_I {
 
     static volatile HashMap<InputComponent, String> mapping;
     static volatile HashMap<Integer, ArrayList<InputComponent> > mappingLookup;
+    static volatile HashMap<String, Long> latestInputTimes;
 
     static Thread remappingThread;
     static Thread monitorThread;
@@ -121,7 +121,7 @@ public class ControllerHandler_I {
                             else if (components[componentIndex].isAnalog()) {
                                 //  check both +/- on axes and deadzone
                                 if (Math.abs(pollData - originalInputs[componentIndex])
-                                        >= Constants.CONTROLLER_REMAP_DEADZONE) break;
+                                        >= Constants.CONTROLLER_DETECT_DEADZONE) break;
                             }
 
                             //  leave loop on rising edge
@@ -147,6 +147,7 @@ public class ControllerHandler_I {
                                 //  component is just a button, add 'btn' to end. ex: "12btn"
                                 value += "btn";
                             }
+                            Preferences.deleteEntriesWithValue(value);
                             Preferences.save(key, value);
                             break;
                         }
@@ -182,7 +183,7 @@ public class ControllerHandler_I {
                                 if(!components[componentIndex].isAnalog()) continue;
 
                                 if(Math.abs(components[componentIndex].getPollData() - originalInputs[componentIndex])
-                                        > Constants.CONTROLLER_REMAP_DEADZONE)
+                                        > Constants.CONTROLLER_DETECT_DEADZONE)
                                     break;  //  detected!
                             }
 
@@ -203,14 +204,21 @@ public class ControllerHandler_I {
                                 }
                             }
                             else {
+                                String preferencesKey = componentName;
+                                String preferencesValue = detectedAxis+"axis";
+
                                 //  check for edge
                                 if(previousPreviousValue < previousValue && previousValue > value) {
                                     //  falling edge - non inverted
-                                    Preferences.save(componentName, detectedAxis + "axis+");
+                                    preferencesValue += "+";
+                                    Preferences.deleteEntriesWithValue(preferencesValue);
+                                    Preferences.save(componentName, preferencesValue);
                                     break;
                                 } else if(previousPreviousValue > previousValue && previousValue < value) {
                                     //  rising edge - inverted
-                                    Preferences.save(componentName, detectedAxis + "axis-");
+                                    preferencesValue += "-";
+                                    Preferences.deleteEntriesWithValue(preferencesValue);
+                                    Preferences.save(componentName, preferencesValue);
                                     break;
                                 }
                                 else {
@@ -238,6 +246,8 @@ public class ControllerHandler_I {
         if(monitorThread != null) return;
         monitorThread = new Thread(() -> {
             try {
+                latestInputTimes = new HashMap<>();
+
                 while (true) {
                     Thread.sleep(20);
 
@@ -255,107 +265,53 @@ public class ControllerHandler_I {
                             for (InputComponent component : mappingLookup.get(i)) {
                                 String inputName = mapping.get(component);
 
+                                //  feed input watchdog
+                                latestInputTimes.put(inputName, System.currentTimeMillis());
+
                                 switch (component.componentType) {
                                     case Constants.CONTROLLER_COMPONENT_TYPE_BUTTON:
+
                                         boolean pressed = components[i].getPollData() != 0;
                                         switch (inputName) {
-                                            case Constants.CONTROLLER_BTN_A:
-                                                ControllerHandler.BTN_A = pressed;
-                                                break;
-                                            case Constants.CONTROLLER_BTN_B:
-                                                ControllerHandler.BTN_B = pressed;
-                                                break;
-                                            case Constants.CONTROLLER_BTN_X:
-                                                ControllerHandler.BTN_X = pressed;
-                                                break;
-                                            case Constants.CONTROLLER_BTN_Y:
-                                                ControllerHandler.BTN_Y = pressed;
-                                                break;
-                                            case Constants.CONTROLLER_BTN_BL:
-                                                ControllerHandler.BTN_BL = pressed;
-                                                break;
-                                            case Constants.CONTROLLER_BTN_BR:
-                                                ControllerHandler.BTN_BR = pressed;
-                                                break;
-                                            case Constants.CONTROLLER_BTN_TL:
-                                                ControllerHandler.BTN_TL = pressed;
-                                                break;
-                                            case Constants.CONTROLLER_BTN_TR:
-                                                ControllerHandler.BTN_TR = pressed;
-                                                break;
-                                            case Constants.CONTROLLER_BTN_START:
-                                                ControllerHandler.BTN_START = pressed;
-                                                break;
-                                            case Constants.CONTROLLER_BTN_SELECT:
-                                                ControllerHandler.BTN_SELECT = pressed;
-                                                break;
-                                            case Constants.CONTROLLER_BTN_JOYL:
-                                                ControllerHandler.BTN_JOYL = pressed;
-                                                break;
-                                            case Constants.CONTROLLER_BTN_JOYR:
-                                                ControllerHandler.BTN_JOYR = pressed;
-                                                break;
+                                            case Constants.CONTROLLER_BTN_A: ControllerHandler.BTN_A = pressed; break;
+                                            case Constants.CONTROLLER_BTN_B: ControllerHandler.BTN_B = pressed; break;
+                                            case Constants.CONTROLLER_BTN_X: ControllerHandler.BTN_X = pressed; break;
+                                            case Constants.CONTROLLER_BTN_Y: ControllerHandler.BTN_Y = pressed; break;
+                                            case Constants.CONTROLLER_BTN_BL: ControllerHandler.BTN_BL = pressed; break;
+                                            case Constants.CONTROLLER_BTN_BR: ControllerHandler.BTN_BR = pressed; break;
+                                            case Constants.CONTROLLER_BTN_TL: ControllerHandler.BTN_TL = pressed; break;
+                                            case Constants.CONTROLLER_BTN_TR: ControllerHandler.BTN_TR = pressed; break;
+                                            case Constants.CONTROLLER_BTN_START: ControllerHandler.BTN_START = pressed; break;
+                                            case Constants.CONTROLLER_BTN_SELECT: ControllerHandler.BTN_SELECT = pressed; break;
+                                            case Constants.CONTROLLER_BTN_JOYL: ControllerHandler.BTN_JOYL = pressed; break;
+                                            case Constants.CONTROLLER_BTN_JOYR: ControllerHandler.BTN_JOYR = pressed; break;
                                         }
                                         break;
                                     case Constants.CONTROLLER_COMPONENT_TYPE_AXIS:
                                         float value = components[i].getPollData();
                                         if (component.axisInverted) value = -value;
 
-                                        boolean pressedValue = value > Constants.CONTROLLER_REMAP_DEADZONE;
-                                        System.out.println(value);
+                                        boolean pressedValue = value > Constants.CONTROLLER_DETECT_DEADZONE;
 
                                         switch (inputName) {
-                                            case Constants.CONTROLLER_AXIS_LX:
-                                                ControllerHandler.AXIS_LX = value;
-                                                break;
-                                            case Constants.CONTROLLER_AXIS_LY:
-                                                ControllerHandler.AXIS_LY = value;
-                                                break;
-                                            case Constants.CONTROLLER_AXIS_RX:
-                                                ControllerHandler.AXIS_RX = value;
-                                                break;
-                                            case Constants.CONTROLLER_AXIS_RY:
-                                                ControllerHandler.AXIS_RY = value;
-                                                break;
+                                            case Constants.CONTROLLER_AXIS_LX: ControllerHandler.AXIS_LX = value; break;
+                                            case Constants.CONTROLLER_AXIS_LY: ControllerHandler.AXIS_LY = value; break;
+                                            case Constants.CONTROLLER_AXIS_RX: ControllerHandler.AXIS_RX = value; break;
+                                            case Constants.CONTROLLER_AXIS_RY: ControllerHandler.AXIS_RY = value; break;
 
-                                            case Constants.CONTROLLER_BTN_A:
-                                                ControllerHandler.BTN_A = pressedValue;
-                                                break;
-                                            case Constants.CONTROLLER_BTN_B:
-                                                ControllerHandler.BTN_B = pressedValue;
-                                                break;
-                                            case Constants.CONTROLLER_BTN_X:
-                                                ControllerHandler.BTN_X = pressedValue;
-                                                break;
-                                            case Constants.CONTROLLER_BTN_Y:
-                                                ControllerHandler.BTN_Y = pressedValue;
-                                                break;
-                                            case Constants.CONTROLLER_BTN_BL:
-                                                ControllerHandler.BTN_BL = pressedValue;
-                                                break;
-                                            case Constants.CONTROLLER_BTN_BR:
-                                                ControllerHandler.BTN_BR = pressedValue;
-                                                break;
-                                            case Constants.CONTROLLER_BTN_TL:
-                                                ControllerHandler.BTN_TL = pressedValue;
-                                                break;
-                                            case Constants.CONTROLLER_BTN_TR:
-                                                ControllerHandler.BTN_TR = pressedValue;
-                                                break;
-                                            case Constants.CONTROLLER_BTN_START:
-                                                ControllerHandler.BTN_START = pressedValue;
-                                                break;
-                                            case Constants.CONTROLLER_BTN_SELECT:
-                                                ControllerHandler.BTN_SELECT = pressedValue;
-                                                break;
-                                            case Constants.CONTROLLER_BTN_JOYL:
-                                                ControllerHandler.BTN_JOYL = pressedValue;
-                                                break;
-                                            case Constants.CONTROLLER_BTN_JOYR:
-                                                ControllerHandler.BTN_JOYR = pressedValue;
-                                                break;
+                                            case Constants.CONTROLLER_BTN_A: ControllerHandler.BTN_A = pressedValue; break;
+                                            case Constants.CONTROLLER_BTN_B: ControllerHandler.BTN_B = pressedValue; break;
+                                            case Constants.CONTROLLER_BTN_X: ControllerHandler.BTN_X = pressedValue; break;
+                                            case Constants.CONTROLLER_BTN_Y: ControllerHandler.BTN_Y = pressedValue; break;
+                                            case Constants.CONTROLLER_BTN_BL: ControllerHandler.BTN_BL = pressedValue; break;
+                                            case Constants.CONTROLLER_BTN_BR: ControllerHandler.BTN_BR = pressedValue; break;
+                                            case Constants.CONTROLLER_BTN_TL: ControllerHandler.BTN_TL = pressedValue; break;
+                                            case Constants.CONTROLLER_BTN_TR: ControllerHandler.BTN_TR = pressedValue; break;
+                                            case Constants.CONTROLLER_BTN_START: ControllerHandler.BTN_START = pressedValue; break;
+                                            case Constants.CONTROLLER_BTN_SELECT: ControllerHandler.BTN_SELECT = pressedValue; break;
+                                            case Constants.CONTROLLER_BTN_JOYL: ControllerHandler.BTN_JOYL = pressedValue; break;
+                                            case Constants.CONTROLLER_BTN_JOYR: ControllerHandler.BTN_JOYR = pressedValue; break;
                                         }
-
                                         break;
                                     case Constants.CONTROLLER_COMPONENT_TYPE_POV:
                                         //  buffer final outputs
@@ -402,6 +358,36 @@ public class ControllerHandler_I {
                                         ControllerHandler.BTN_RIGHT = right;
                                         break;
                                 }
+                            }
+                        }
+                    }
+
+                    //  watchdog
+                    for(String inputName : Constants.CONTROLLER_INPUTS) {
+                        latestInputTimes.computeIfAbsent(inputName, k -> 0L);
+                        long lastInputTime = latestInputTimes.get(inputName);
+                        if(System.currentTimeMillis() - lastInputTime > Constants.CONTROLLER_INPUT_WATCHDOG_TIMER_MS) {
+                            switch (inputName) {
+                                case Constants.CONTROLLER_BTN_A: ControllerHandler.BTN_A = false; break;
+                                case Constants.CONTROLLER_BTN_B: ControllerHandler.BTN_B = false; break;
+                                case Constants.CONTROLLER_BTN_X: ControllerHandler.BTN_X = false; break;
+                                case Constants.CONTROLLER_BTN_Y: ControllerHandler.BTN_Y = false; break;
+                                case Constants.CONTROLLER_BTN_BL: ControllerHandler.BTN_BL = false; break;
+                                case Constants.CONTROLLER_BTN_BR: ControllerHandler.BTN_BR = false; break;
+                                case Constants.CONTROLLER_BTN_TL: ControllerHandler.BTN_TL = false; break;
+                                case Constants.CONTROLLER_BTN_TR: ControllerHandler.BTN_TR = false; break;
+                                case Constants.CONTROLLER_BTN_START: ControllerHandler.BTN_START = false; break;
+                                case Constants.CONTROLLER_BTN_SELECT: ControllerHandler.BTN_SELECT = false; break;
+                                case Constants.CONTROLLER_BTN_JOYL: ControllerHandler.BTN_JOYL = false; break;
+                                case Constants.CONTROLLER_BTN_JOYR: ControllerHandler.BTN_JOYR = false; break;
+                                case Constants.CONTROLLER_AXIS_LX: ControllerHandler.AXIS_LX = 0; break;
+                                case Constants.CONTROLLER_AXIS_LY: ControllerHandler.AXIS_LY = 0; break;
+                                case Constants.CONTROLLER_AXIS_RX: ControllerHandler.AXIS_RX = 0; break;
+                                case Constants.CONTROLLER_AXIS_RY: ControllerHandler.AXIS_RY = 0; break;
+                                case Constants.CONTROLLER_BTN_UP: ControllerHandler.BTN_UP = false; break;
+                                case Constants.CONTROLLER_BTN_DOWN: ControllerHandler.BTN_DOWN = false; break;
+                                case Constants.CONTROLLER_BTN_LEFT: ControllerHandler.BTN_LEFT = false; break;
+                                case Constants.CONTROLLER_BTN_RIGHT: ControllerHandler.BTN_RIGHT = false; break;
                             }
                         }
                     }
